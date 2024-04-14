@@ -1,0 +1,78 @@
+
+package main
+
+import "fmt"
+
+func main() {
+    cnp := make(chan func(), 10)
+    for i := 0; i < 4; i++ {
+        go func() {
+            for f := range cnp {
+                f()
+            }
+        }()
+    }
+    cnp <- func() {
+        fmt.Println("HERE1")
+    }
+    fmt.Println("Hello")
+}
+
+Explaination for above code
+
+Channel Creation and Goroutines:
+The code begins by creating a buffered channel named cnp of type chan func(). The buffer size is set to 10.
+The purpose of this channel is to hold functions (of type func()) that can be executed concurrently by goroutines.
+The make(chan func(), 10) line initializes the channel with a capacity of 10, allowing it to store up to 10 function values.
+
+
+Goroutine Creation:
+Next, a for loop is used to create four goroutines (concurrent execution units) that will process functions from the cnp channel.
+Each goroutine runs an anonymous function (a closure) that listens for functions from the channel using a range loop.
+When a function is available in the channel, the goroutine executes it.
+
+
+Function Sent to Channel:
+After creating the goroutines, the main function sends a function to the cnp channel using cnp <- func() { fmt.Println("HERE1") }.
+This function simply prints “HERE1” when executed.
+
+
+Print Statement:
+Finally, the main function prints “Hello” to the standard output.
+Now let’s address the specific questions:
+
+How the Highlighted Constructs Work:
+The highlighted constructs include:
+make(chan func(), 10): Creates a buffered channel capable of holding up to 10 function values.
+go func() { ... }(): Launches a goroutine that listens for functions from the channel and executes them.
+cnp <- func() { fmt.Println("HERE1") }: Sends a function (the one that prints “HERE1”) to the channel.
+These constructs work together to demonstrate concurrent execution using goroutines and channels.
+
+
+Use Cases:
+Goroutines and channels are fundamental to concurrent programming in Go.
+
+
+Use cases include:
+Parallelizing tasks (e.g., handling multiple requests concurrently).
+Implementing worker pools.
+Coordinating communication between different parts of a program.
+
+
+Significance of the For Loop with 4 Iterations:
+The for i := 0; i < 4; i++ loop creates four goroutines.
+Each goroutine will independently process functions from the channel.
+The loop ensures that there are enough goroutines to handle incoming functions concurrently.
+
+
+Significance of make(chan func(), 10):
+The make(chan func(), 10) line creates a buffered channel (cnp) capable of holding 10 function values.
+The buffer allows functions to be sent to the channel even if there are no active receivers (goroutines) at the moment.
+It helps prevent blocking when sending functions to the channel.
+
+
+Why “HERE1” Is Not Getting Printed:
+The goroutines are already running when the main function sends the function to the channel.
+Since the channel is unbuffered, the goroutines must be ready to receive before the send operation.
+In this case, the goroutines are not yet listening for functions from the channel, so the function is not executed immediately.
+As a result, “HERE1” is not printed before the program exits.
